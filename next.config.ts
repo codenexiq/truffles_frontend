@@ -79,14 +79,6 @@ const nextConfig: NextConfig = {
   },
   // Adds integrity hashes to scripts, which lets the CSP stay strict without nonces.
   experimental: { sri: { algorithm: "sha256" } },
-  turbopack: {
-    rules: {
-      "*.css": {
-        loaders: ["@tailwindcss/turbopack"],
-        as: "*.css",
-      },
-    },
-  },
 };
 
 export default nextConfig;
