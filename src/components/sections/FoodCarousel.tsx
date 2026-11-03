@@ -2,8 +2,9 @@
 
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
-import { AnimatePresence, motion } from "framer-motion";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { motion } from "framer-motion";
+import Link from "next/link";
+import { ChevronLeft, ChevronRight, Heart, MapPin, Tag } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Reveal } from "@/components/ui/Reveal";
@@ -23,6 +24,7 @@ function offsetFrom(i: number, active: number) {
 export function FoodCarousel() {
   const [active, setActive] = useState(0);
   const [paused, setPaused] = useState(false);
+  const [liked, setLiked] = useState<Record<string, boolean>>({});
   const stageRef = useRef<HTMLDivElement | null>(null);
   const [stageW, setStageW] = useState(1000);
 
@@ -41,11 +43,10 @@ export function FoodCarousel() {
     return () => window.clearInterval(t);
   }, [paused]);
 
-  const cardW = Math.min(340, stageW * 0.68);
-  const cardH = cardW * 1.25;
-  const step = cardW * 0.72;
+  const cardW = Math.min(320, stageW * 0.72);
+  const cardH = cardW * 1.42 + 20;
+  const step = cardW * 0.9;
   const go = (d: number) => setActive((a) => (a + d + N) % N);
-  const current = FOOD_SLIDES[active];
 
   return (
     <section
@@ -84,19 +85,19 @@ export function FoodCarousel() {
                 const abs = Math.abs(o);
                 const visible = abs <= 2;
                 return (
-                  <motion.button
+                  <motion.div
                     key={slide.id}
-                    type="button"
-                    onClick={() => setActive(i)}
-                    aria-label={`Show ${slide.title}`}
+                    role="group"
+                    aria-roledescription="slide"
+                    aria-label={slide.title}
                     aria-hidden={!visible}
-                    tabIndex={visible ? 0 : -1}
+                    onClick={() => abs !== 0 && setActive(i)}
                     initial={false}
                     animate={{
                       x: o * step,
                       scale: 1 - abs * 0.14,
                       rotateY: o * -9,
-                      opacity: visible ? 1 - abs * 0.28 : 0,
+                      opacity: visible ? 1 : 0,
                     }}
                     transition={{ type: "spring", stiffness: 140, damping: 20 }}
                     style={{
@@ -106,50 +107,78 @@ export function FoodCarousel() {
                       zIndex: 10 - abs,
                       pointerEvents: visible ? "auto" : "none",
                     }}
-                    className="theme-dark absolute top-3 cursor-pointer overflow-hidden rounded-2xl border border-gold/30 bg-black shadow-[0_25px_60px_-20px_rgba(0,0,0,0.85)] outline-none focus-visible:ring-2 focus-visible:ring-gold"
+                    className={`absolute top-3 flex flex-col overflow-hidden rounded-[2rem] bg-[#ffffff] p-3.5 text-[#18181b] shadow-[0_30px_60px_-24px_rgba(0,0,0,0.7)] ${
+                      abs === 0 ? "" : "cursor-pointer"
+                    }`}
                   >
-                    <Image
-                      src={slide.image}
-                      alt={slide.title}
-                      fill
-                      sizes="340px"
-                      className="object-cover"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
+                    {/* Photo with soft, generously rounded corners */}
+                    <div className="relative min-h-0 flex-1 overflow-hidden rounded-[1.6rem]">
+                      <Image
+                        src={slide.image}
+                        alt={slide.title}
+                        fill
+                        sizes="320px"
+                        className="object-cover"
+                      />
+                    </div>
+
+                    <div className="px-1.5 pt-4">
+                      <h3 className="font-serif text-2xl font-semibold leading-tight text-[#0b0b0d]">
+                        {slide.title}
+                      </h3>
+                      <p className="mt-0.5 text-sm text-[#71717a]">Signature dish</p>
+
+                      <div className="mt-3 flex items-center gap-5 text-sm text-[#27272a]">
+                        <span className="flex items-center gap-2">
+                          <Tag className="h-4 w-4 text-[#b8902f]" aria-hidden="true" />
+                          {slide.category}
+                        </span>
+                        <span className="flex items-center gap-2">
+                          <MapPin className="h-4 w-4 text-[#b8902f]" aria-hidden="true" />
+                          F-10
+                        </span>
+                      </div>
+
+                      <div className="mt-4 flex items-center gap-2.5 pb-1">
+                        <Link
+                          href="/reservations"
+                          tabIndex={abs === 0 ? 0 : -1}
+                          className="flex-1 rounded-full bg-[#18181b] py-3 text-center text-sm font-medium text-[#ffffff] transition-colors hover:bg-black focus-visible:ring-2 focus-visible:ring-gold outline-none"
+                        >
+                          Reserve a Table
+                        </Link>
+                        <motion.button
+                          type="button"
+                          tabIndex={abs === 0 ? 0 : -1}
+                          whileTap={{ scale: 0.8 }}
+                          onClick={() => setLiked((l) => ({ ...l, [slide.id]: !l[slide.id] }))}
+                          aria-label={liked[slide.id] ? `Unsave ${slide.title}` : `Save ${slide.title}`}
+                          aria-pressed={!!liked[slide.id]}
+                          className="flex h-11 w-11 shrink-0 cursor-pointer items-center justify-center rounded-full border border-[#e4e4e7] text-orange-400 outline-none focus-visible:ring-2 focus-visible:ring-gold"
+                        >
+                          <Heart
+                            className="h-5 w-5"
+                            fill={liked[slide.id] ? "currentColor" : "none"}
+                            aria-hidden="true"
+                          />
+                        </motion.button>
+                      </div>
+                    </div>
+
                     {/* Dim the side cards so the centre one reads as focused */}
                     <motion.div
-                      className="absolute inset-0 bg-black"
+                      className="pointer-events-none absolute inset-0 bg-black"
                       initial={false}
-                      animate={{ opacity: abs === 0 ? 0 : 0.35 + abs * 0.1 }}
+                      animate={{ opacity: abs === 0 ? 0 : 0.28 + abs * 0.1 }}
                       transition={{ duration: 0.4 }}
                     />
-                  </motion.button>
+                  </motion.div>
                 );
               })}
             </motion.div>
 
-            {/* Caption */}
-            <div className="mt-8 flex min-h-[76px] flex-col items-center text-center">
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={current.id}
-                  initial={{ opacity: 0, y: 14 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  transition={{ duration: 0.35 }}
-                >
-                  <span className="text-[11px] uppercase tracking-[0.3em] text-gold">
-                    {current.category}
-                  </span>
-                  <h3 className="mt-1 font-serif text-2xl sm:text-3xl text-white">
-                    {current.title}
-                  </h3>
-                </motion.div>
-              </AnimatePresence>
-            </div>
-
             {/* Controls */}
-            <div className="mt-4 flex items-center justify-center gap-5">
+            <div className="mt-6 flex items-center justify-center gap-5">
               <button
                 type="button"
                 onClick={() => go(-1)}
