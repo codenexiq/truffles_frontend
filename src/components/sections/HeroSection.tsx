@@ -106,21 +106,13 @@ export function HeroSection() {
         className="absolute inset-x-0 top-0 -bottom-[22%] z-0"
       >
         <HeroBackdrop />
-        {/* Darkening + warmth overlays */}
-        <div className="absolute inset-0 bg-band/72" />
-        <div className="absolute inset-0 bg-gradient-to-b from-band via-transparent to-page" />
-        {/* Drifting aurora light */}
-        <div className="aurora" />
-        <div className="aurora aurora-slow" />
-        {/* Breathing central glow */}
-        <div className="animate-breathe absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[760px] h-[520px] max-w-[90vw] bg-[radial-gradient(ellipse_at_center,_rgba(212,175,55,0.18)_0%,_transparent_70%)]" />
+        {/* Light scrim only: keeps the white text readable and lets the photo show */}
+        <div className="absolute inset-0 bg-black/25" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/45 via-transparent to-black/55" />
       </motion.div>
 
       {/* Floating gold embers */}
       <HeroParticles className="absolute inset-0 z-[1] pointer-events-none" />
-
-      {/* Subtle luxury mesh grid */}
-      <div className="absolute inset-0 z-[1] bg-[radial-gradient(#ffffff0a_1px,transparent_1px)] [background-size:34px_34px] opacity-50 pointer-events-none" />
 
       <Container className="relative z-10">
         <motion.div
@@ -146,7 +138,7 @@ export function HeroSection() {
 
           {/* Headline: words rise out of a mask, one after another */}
           <div className="space-y-4">
-            <h1 className="font-serif text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-normal tracking-tight text-white leading-[1.08]">
+            <h1 className="font-serif text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-normal tracking-tight text-white leading-[1.08] [text-shadow:0_2px_24px_rgba(0,0,0,0.55)]">
               <span className="block">
                 <SplitText text="Where Truffle Mastery" delay={0.3} />
               </span>
@@ -245,7 +237,7 @@ export function HeroSection() {
       </motion.div>
 
       {/* Bottom gradient fade into next section */}
-      <div className="absolute bottom-0 left-0 right-0 h-28 bg-gradient-to-t from-band to-transparent pointer-events-none z-[2]" />
+      <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-band to-transparent pointer-events-none z-[2]" />
     </section>
   );
 }
