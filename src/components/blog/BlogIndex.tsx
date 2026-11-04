@@ -5,6 +5,7 @@ import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
 import { Clapperboard } from "lucide-react";
 import { Container } from "@/components/ui/Container";
+import { FloatingGlows } from "@/components/motion/FloatingGlows";
 import { AnimatedTabs } from "@/components/motion/AnimatedTabs";
 import { PostCard } from "./PostCard";
 import { BLOG_CATEGORIES, POSTS, type BlogCategoryId } from "@/data/blogPosts";
@@ -41,8 +42,9 @@ export function BlogIndex() {
   const grid = showFeatured ? rest : shown;
 
   return (
-    <section className="relative bg-page py-16 sm:py-20">
-      <Container>
+    <section className="relative overflow-hidden bg-page py-16 sm:py-20">
+      <FloatingGlows />
+      <Container className="relative z-10">
         <AnimatedTabs
           groupId="blog-tabs"
           className="mb-12 flex flex-wrap items-center justify-center gap-2.5"

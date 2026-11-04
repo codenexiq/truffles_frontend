@@ -1,11 +1,15 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import Link from "next/link";
 import { Container } from "@/components/ui/Container";
 import { SplitText } from "@/components/motion/SplitText";
 import { Magnetic } from "@/components/motion/Magnetic";
 import { MenuBrowser } from "@/components/menu/MenuBrowser";
+import { CupcakeShowcase } from "@/components/menu/CupcakeShowcase";
 import { PdfDownload } from "@/components/menu/PdfDownload";
+import { EventsHeroBg } from "@/components/events/EventsHeroBg";
+import { HeroParticles } from "@/components/ui/HeroParticles";
+import { Marquee } from "@/components/sections/Marquee";
+import { MENU_SECTIONS } from "@/data/menuItems";
 import { CTASection } from "@/components/sections/CTASection";
 import { IMAGES } from "@/data/images";
 
@@ -20,17 +24,10 @@ export default function MenuPage() {
     <>
       {/* Page hero */}
       <section className="theme-dark relative isolate overflow-hidden bg-band pb-20 pt-40 text-center sm:pb-24 sm:pt-48">
-        <Image
-          src={IMAGES.heroDish}
-          alt=""
-          aria-hidden
-          fill
-          priority
-          sizes="100vw"
-          className="object-cover opacity-40 animate-kenburns"
-        />
+        <EventsHeroBg src={IMAGES.heroDish} />
         <div className="absolute inset-0 bg-gradient-to-b from-band/80 via-band/55 to-page" />
         <div className="aurora" />
+        <HeroParticles className="pointer-events-none absolute inset-0" />
 
         <Container className="relative z-10">
           <span className="inline-flex items-center gap-2 rounded-full border border-gold/40 bg-black/40 px-4 py-1.5 text-[11px] uppercase tracking-[0.28em] text-gold-light backdrop-blur-md">
@@ -64,7 +61,8 @@ export default function MenuPage() {
         </Container>
       </section>
 
-      <MenuBrowser />
+      <Marquee items={[...MENU_SECTIONS.map((x) => x.title), "Fresh & Flavourful", "Made to Share", "Rooftop Dining"]} />
+      <MenuBrowser afterHighlights={<CupcakeShowcase />} />
       <CTASection />
     </>
   );

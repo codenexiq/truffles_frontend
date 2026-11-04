@@ -2,6 +2,7 @@
 
 import { useEffect, useSyncExternalStore } from "react";
 import { createPortal } from "react-dom";
+import Image from "next/image";
 import Link from "next/link";
 import { AnimatePresence, motion, type Variants } from "framer-motion";
 import { NAV_LINKS, SITE_CONFIG } from "@/constants";
@@ -64,14 +65,7 @@ export function MobileNav({ isOpen, onClose }: MobileNavProps) {
             variants={child}
             className="flex items-center justify-between border-b border-white/10 pb-6"
           >
-            <div className="flex flex-col">
-              <span className="font-serif text-2xl font-semibold tracking-wider text-white">
-                TRUFFLES
-              </span>
-              <span className="text-[9px] uppercase tracking-[0.3em] text-gold">
-                ROOFTOP RESTAURANT
-              </span>
-            </div>
+            <Image src="/images/logo.png" alt="Truffles Rooftop Restaurant" width={768} height={528} className="h-14 w-auto" />
             <motion.button
               onClick={onClose}
               whileHover={{ rotate: 90, scale: 1.1 }}

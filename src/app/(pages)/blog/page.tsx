@@ -1,9 +1,12 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import { Container } from "@/components/ui/Container";
 import { SplitText } from "@/components/motion/SplitText";
 import { BlogIndex } from "@/components/blog/BlogIndex";
 import { GuestStories } from "@/components/blog/GuestStories";
+import { EventsHeroBg } from "@/components/events/EventsHeroBg";
+import { HeroParticles } from "@/components/ui/HeroParticles";
+import { Marquee } from "@/components/sections/Marquee";
+import { BLOG_CATEGORIES } from "@/data/blogPosts";
 import { IMAGES } from "@/data/images";
 
 export const metadata: Metadata = {
@@ -17,17 +20,10 @@ export default function BlogPage() {
     <>
       {/* Page hero */}
       <section className="theme-dark relative isolate overflow-hidden bg-band pb-20 pt-40 text-center sm:pb-24 sm:pt-48">
-        <Image
-          src={IMAGES.heroInterior}
-          alt=""
-          aria-hidden
-          fill
-          priority
-          sizes="100vw"
-          className="object-cover opacity-35 animate-kenburns"
-        />
+        <EventsHeroBg src={IMAGES.heroInterior} />
         <div className="absolute inset-0 bg-gradient-to-b from-band/80 via-band/55 to-page" />
         <div className="aurora" />
+        <HeroParticles className="pointer-events-none absolute inset-0" />
 
         <Container className="relative z-10">
           <span className="inline-flex items-center gap-2 rounded-full border border-gold/40 bg-black/40 px-4 py-1.5 text-[11px] uppercase tracking-[0.28em] text-gold-light backdrop-blur-md">
@@ -48,6 +44,7 @@ export default function BlogPage() {
         </Container>
       </section>
 
+      <Marquee items={[...BLOG_CATEGORIES.map((c) => c.label), "Guest Stories", "Rooftop Dining", "Behind the Scenes"]} />
       <BlogIndex />
       <GuestStories />
     </>

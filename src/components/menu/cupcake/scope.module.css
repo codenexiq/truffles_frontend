@@ -1,0 +1,22 @@
+/* The few global rules the supplied carousel page relied on (globals.css), scoped to this section with zero specificity. */
+:where(.scope),
+:where(.scope) *,
+:where(.scope) *::before,
+:where(.scope) *::after {
+  box-sizing: border-box;
+}
+:where(.scope) {
+  display: grid;
+  color: var(--color-white, #fff);
+  font-family: var(--font-body), system-ui, -apple-system, 'Segoe UI', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+:where(.scope) button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+}

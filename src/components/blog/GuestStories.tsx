@@ -3,6 +3,7 @@ import { Star, ExternalLink } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Reveal } from "@/components/ui/Reveal";
+import { FloatingGlows } from "@/components/motion/FloatingGlows";
 import { TestimonialCard } from "@/components/cards/TestimonialCard";
 import { ReviewForm } from "./ReviewForm";
 import { GUEST_REVIEWS } from "@/data/testimonials";
@@ -11,8 +12,9 @@ import { GOOGLE_REVIEWS } from "@/data/googleReviews";
 /** Guest stories: curated testimonials, a Google rating (when configured), and a review form. */
 export function GuestStories() {
   return (
-    <section id="reviews" className="relative scroll-mt-24 border-t border-white/10 bg-band py-20 sm:py-28">
-      <Container>
+    <section id="reviews" className="relative scroll-mt-24 overflow-hidden border-t border-white/10 bg-band py-20 sm:py-28">
+      <FloatingGlows />
+      <Container className="relative z-10">
         <SectionHeading
           badge="GUEST STORIES"
           title="What Our Guests Say"

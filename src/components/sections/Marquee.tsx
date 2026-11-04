@@ -10,7 +10,7 @@ const ITEMS = [
   "Nikkah & Engagements",
 ];
 
-export function Marquee() {
+export function Marquee({ items = ITEMS }: { items?: string[] }) {
   return (
     <div className="relative overflow-hidden border-y border-gold/15 bg-band py-5">
       {/* edge fades */}
@@ -18,7 +18,7 @@ export function Marquee() {
       <div className="pointer-events-none absolute inset-y-0 right-0 w-28 z-10 bg-gradient-to-l from-band to-transparent" />
 
       <div className="marquee-track flex w-max items-center gap-10 whitespace-nowrap">
-        {[...ITEMS, ...ITEMS].map((item, i) => (
+        {[...items, ...items].map((item, i) => (
           <span
             key={i}
             className="flex items-center gap-10 font-serif text-xl sm:text-2xl italic text-zinc-400"

@@ -1,27 +1,34 @@
 "use client";
 
 import Link from "next/link";
-import { motion } from "framer-motion";
-import { Check, Cake, Flower2, GraduationCap, Gem, Heart, type LucideIcon } from "lucide-react";
+import { motion, useReducedMotion } from "framer-motion";
+import { Check, Tag } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { SectionHeading } from "@/components/ui/SectionHeading";
-import { Button } from "@/components/ui/Button";
-import { Stagger, StaggerItem } from "@/components/motion/Stagger";
 import { EVENT_PACKAGES } from "@/data/eventsData";
+import { IMAGES } from "@/data/images";
+import { EventCardUI } from "./EventCardUI";
 import { selectEventType } from "./eventBus";
 
-const ICONS: Record<string, LucideIcon> = {
-  birthday: Cake,
-  anniversary: Heart,
-  bride: Flower2,
-  graduation: GraduationCap,
-  proposal: Gem,
+const PHOTOS: Record<string, string> = {
+  birthday: IMAGES.evBirthday2,
+  anniversary: IMAGES.evAnniversary2,
+  bride: IMAGES.evBridal2,
+  graduation: IMAGES.evGraduation,
+  proposal: IMAGES.evProposal,
 };
 
 export function EventPackages() {
+  const reduce = useReducedMotion();
+
   return (
     <section className="relative overflow-hidden bg-band py-20 sm:py-28">
-      <div className="pointer-events-none absolute left-1/2 top-1/2 h-[480px] w-[900px] max-w-[95vw] -translate-x-1/2 -translate-y-1/2 bg-[radial-gradient(ellipse_at_center,_rgba(212,175,55,0.07)_0%,_transparent_70%)]" />
+      <motion.div
+        className="pointer-events-none absolute left-1/2 top-1/2 h-[480px] w-[900px] max-w-[95vw] -translate-x-1/2 -translate-y-1/2 bg-[radial-gradient(ellipse_at_center,_rgba(212,175,55,0.1)_0%,_transparent_70%)]"
+        animate={reduce ? undefined : { scale: [1, 1.12, 1], opacity: [0.8, 1, 0.8] }}
+        transition={{ duration: 9, ease: "easeInOut", repeat: Infinity }}
+        aria-hidden="true"
+      />
       <Container className="relative z-10">
         <SectionHeading
           badge="DINE + DECOR PACKAGES"
@@ -29,59 +36,43 @@ export function EventPackages() {
           subtitle="Dinner and premium decor in one. Every package can be customised to your theme."
         />
 
-        <Stagger className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3" stagger={0.09}>
-          {EVENT_PACKAGES.map((pkg) => {
-            const Icon = ICONS[pkg.id] ?? Gem;
-            return (
-              <StaggerItem key={pkg.id} className="h-full">
-                <motion.div
-                  whileHover={{ y: -8 }}
-                  transition={{ type: "spring", stiffness: 260, damping: 20 }}
-                  className="luxury-card group relative flex h-full flex-col overflow-hidden rounded-2xl p-7"
-                >
-                  <span className="pointer-events-none absolute -right-12 -top-12 h-36 w-36 rounded-full bg-gold/10 opacity-0 blur-2xl transition-opacity duration-500 group-hover:opacity-100" />
-                  <span className="relative flex h-12 w-12 items-center justify-center rounded-full border border-gold/40 bg-gold/5 text-gold transition-transform duration-500 group-hover:rotate-[8deg] group-hover:scale-110">
-                    <Icon className="h-5 w-5" />
-                  </span>
-                  <h3 className="relative mt-5 font-serif text-2xl text-zinc-100">{pkg.title}</h3>
+        <motion.div
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true, amount: 0.1 }}
+          variants={{ hidden: {}, show: { transition: { staggerChildren: 0.12 } } }}
+          className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3"
+        >
+          {EVENT_PACKAGES.map((pkg, i) => (
+            <EventCardUI
+              key={pkg.id}
+              index={i}
+              image={PHOTOS[pkg.id] ?? IMAGES.evLongTable}
+              alt={pkg.title}
+              title={pkg.title}
+              subtitle="Dine + Decor package"
+              bullets={pkg.includes}
+              infoA={{ icon: <Tag className="h-5 w-5" />, text: pkg.price ?? "Price on request" }}
+              infoB={{ icon: <Check className="h-5 w-5" />, text: `${pkg.includes.length} inclusions` }}
+              buttonLabel="Enquire About This Package"
+              onClick={() => selectEventType(pkg.occasion)}
+            />
+          ))}
+        </motion.div>
 
-                  <ul className="relative mt-4 flex-1 space-y-2">
-                    {pkg.includes.map((i) => (
-                      <li key={i} className="flex items-start gap-2 text-sm text-zinc-400">
-                        <Check className="mt-0.5 h-4 w-4 shrink-0 text-gold" />
-                        {i}
-                      </li>
-                    ))}
-                  </ul>
-
-                  <div className="relative mt-6 border-t border-white/10 pt-5">
-                    <p className="text-[10px] uppercase tracking-[0.22em] text-zinc-500">Package price</p>
-                    <p className="mt-1 font-serif text-2xl text-gold-gradient">
-                      {pkg.price ?? "On request"}
-                    </p>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      className="mt-4 w-full"
-                      onClick={() => selectEventType(pkg.occasion)}
-                    >
-                      Enquire About This Package
-                    </Button>
-                  </div>
-                </motion.div>
-              </StaggerItem>
-            );
-          })}
-        </Stagger>
-
-        <p className="mt-10 text-center text-sm text-zinc-400">
+        <motion.p
+          initial={{ opacity: 0, y: 16 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.7, delay: 0.2 }}
+          className="mt-10 text-center text-sm text-zinc-400"
+        >
           Want the full picture?{" "}
           <Link href="/offers#dine-decor" className="text-gold underline-offset-4 hover:text-gold-light hover:underline">
             See the Dine + Decor offer
           </Link>
           .
-        </p>
+        </motion.p>
       </Container>
     </section>
   );

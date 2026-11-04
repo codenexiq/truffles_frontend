@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { Container } from "@/components/ui/Container";
 import { SITE_CONFIG, NAV_LINKS } from "@/constants";
@@ -46,10 +47,8 @@ export function Footer() {
         <Stagger className="py-20 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-12 lg:gap-8" stagger={0.12}>
           {/* Brand Info (4 cols) */}
           <StaggerItem className="lg:col-span-4 space-y-6">
-            <div className="space-y-1">
-              <h3 className="font-serif text-3xl font-semibold tracking-wider text-white">
-                TRUFFLES
-              </h3>
+            <div className="space-y-3">
+              <Image src="/images/logo.png" alt="Truffles Rooftop Restaurant" width={768} height={528} className="h-24 w-auto" />
               <p className="text-[10px] uppercase tracking-[0.35em] text-gold font-medium">
                 ROOFTOP RESTAURANT • F-10 ISLAMABAD
               </p>

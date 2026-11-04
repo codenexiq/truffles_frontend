@@ -1,15 +1,15 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { motion, useMotionValueEvent, useScroll } from "framer-motion";
 import { Container } from "@/components/ui/Container";
 import { Button } from "@/components/ui/Button";
-import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { MobileNav } from "./MobileNav";
 import { NAV_LINKS, SITE_CONFIG } from "@/constants";
 import { cn } from "@/utils";
-import { Phone, Utensils } from "lucide-react";
+import { Phone } from "lucide-react";
 
 export function Header() {
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
@@ -88,18 +88,18 @@ export function Header() {
         <Container>
           <nav className="flex items-center justify-between">
             {/* Logo Brand Crest */}
-            <Link href="/" className="group flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full border border-gold/60 flex items-center justify-center bg-black/40 group-hover:border-gold group-hover:shadow-[0_0_15px_rgba(212,175,55,0.3)] transition-all">
-                <Utensils className="w-4 h-4 text-gold" />
-              </div>
-              <div className="flex flex-col">
-                <span className="font-serif text-xl sm:text-2xl font-semibold tracking-wider text-white group-hover:text-gold-light transition-colors">
-                  TRUFFLES
-                </span>
-                <span className="text-[9px] uppercase tracking-[0.35em] text-gold -mt-1 font-medium">
-                  CAFE & RESTAURANT
-                </span>
-              </div>
+            <Link href="/" className="group flex items-center" aria-label="Truffles Cafe & Restaurant, home">
+              <Image
+                src="/images/logo.png"
+                alt="Truffles"
+                width={768}
+                height={528}
+                priority
+                className={cn(
+                  "w-auto transition-all duration-500 group-hover:brightness-125 group-hover:drop-shadow-[0_0_14px_rgba(212,175,55,0.45)]",
+                  isScrolled ? "h-12 sm:h-14" : "h-14 sm:h-[4.25rem]"
+                )}
+              />
             </Link>
 
             {/* Desktop Navigation */}
@@ -116,9 +116,8 @@ export function Header() {
               ))}
             </div>
 
-            {/* Theme switch (always visible) + CTA Reservation Button */}
-            <ThemeToggle className="ml-auto mr-2 sm:mr-0 sm:ml-0" />
-            <div className="hidden sm:flex items-center gap-4">
+            {/* CTA Reservation Button (on phones it moves right, next to the menu button) */}
+            <div className="ml-auto hidden items-center gap-4 sm:ml-0 sm:flex">
               <Link href="/reservations">
                 <Button variant="primary" size="sm" className="shadow-lg">
                   Reserve a Table

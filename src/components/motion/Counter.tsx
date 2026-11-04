@@ -10,12 +10,16 @@ interface CounterProps {
   /** Seconds. */
   duration?: number;
   className?: string;
+  /** Thousands separators (default). Turn off for years. */
+  grouping?: boolean;
 }
 
-const fmt = new Intl.NumberFormat("en-US");
+const GROUPED = new Intl.NumberFormat("en-US");
+const PLAIN = new Intl.NumberFormat("en-US", { useGrouping: false });
 
 /** Counts up from 0 to `to` the first time it scrolls into view. */
-export function Counter({ to, prefix = "", suffix = "", duration = 1.8, className }: CounterProps) {
+export function Counter({ to, prefix = "", suffix = "", duration = 1.8, className, grouping = true }: CounterProps) {
+  const fmt = grouping ? GROUPED : PLAIN;
   const ref = useRef<HTMLSpanElement | null>(null);
   const inView = useInView(ref, { once: true, margin: "0px 0px -10% 0px" });
 
@@ -30,7 +34,7 @@ export function Counter({ to, prefix = "", suffix = "", duration = 1.8, classNam
       },
     });
     return () => controls.stop();
-  }, [inView, to, prefix, suffix, duration]);
+  }, [inView, to, prefix, suffix, duration, fmt]);
 
   return (
     <span ref={ref} className={className}>

@@ -64,12 +64,12 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      data-theme="dark"
+      data-theme="light"
       suppressHydrationWarning
       className={`${playfair.variable} ${inter.variable} h-full antialiased`}
     >
       <head>
-        {/* Sets the saved/OS theme before first paint. A file (not inline code) so the CSP can forbid inline scripts. */}
+        {/* Locks the light theme before first paint. A file (not inline code) so the CSP can forbid inline scripts. */}
         {/* eslint-disable-next-line @next/next/no-sync-scripts -- must block first paint, otherwise the page flashes the wrong theme */}
         <script src="/theme-init.js" />
       </head>

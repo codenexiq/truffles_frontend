@@ -6,7 +6,6 @@ import Link from "next/link";
 import { AnimatePresence, motion, useScroll, useTransform } from "framer-motion";
 import { Button } from "@/components/ui/Button";
 import { Container } from "@/components/ui/Container";
-import { HeroCarousel3D } from "@/components/sections/HeroCarousel3D";
 import { HeroParticles } from "@/components/ui/HeroParticles";
 import { Magnetic } from "@/components/motion/Magnetic";
 import { SplitText } from "@/components/motion/SplitText";
@@ -116,10 +115,9 @@ export function HeroSection() {
       <HeroParticles className="absolute inset-0 z-[1] pointer-events-none" />
 
       <Container className="relative z-10">
-        <div className="grid items-center gap-12 lg:grid-cols-2 lg:gap-6">
         <motion.div
           style={{ y: copyY, opacity: copyOpacity }}
-          className="text-center lg:text-left space-y-8"
+          className="text-center max-w-4xl mx-auto space-y-8"
         >
           {/* Location badge */}
           <motion.div
@@ -140,7 +138,7 @@ export function HeroSection() {
 
           {/* Headline: words rise out of a mask, one after another */}
           <div className="space-y-4">
-            <h1 className="font-serif text-4xl sm:text-6xl lg:text-[3.4rem] xl:text-7xl font-normal tracking-tight text-white leading-[1.08] [text-shadow:0_2px_24px_rgba(0,0,0,0.55)]">
+            <h1 className="font-serif text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-normal tracking-tight text-white leading-[1.08] [text-shadow:0_2px_24px_rgba(0,0,0,0.55)]">
               <span className="block">
                 <SplitText text="Where Truffle Mastery" delay={0.3} />
               </span>
@@ -154,14 +152,14 @@ export function HeroSection() {
             </h1>
             <motion.p
               {...rise(1.2)}
-              className="max-w-xl mx-auto lg:mx-0 text-sm sm:text-lg text-zinc-200 font-light leading-relaxed pt-2 [text-shadow:0_1px_14px_rgba(0,0,0,0.8)]"
+              className="max-w-2xl mx-auto text-sm sm:text-lg text-zinc-200 font-light leading-relaxed pt-2 [text-shadow:0_1px_14px_rgba(0,0,0,0.8)]"
             >
               Bring your family, bring your friends, and enjoy a perfect
               evening overlooking Islamabad.
             </motion.p>
             <motion.p
               {...rise(1.35)}
-              className="flex flex-wrap items-center justify-center lg:justify-start gap-x-3 gap-y-1 text-xs sm:text-sm text-gold-light [text-shadow:0_1px_10px_rgba(0,0,0,0.8)]"
+              className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-xs sm:text-sm text-gold-light [text-shadow:0_1px_10px_rgba(0,0,0,0.8)]"
             >
               <MapPin className="w-4 h-4 text-gold" />
               <span>Truffles Rooftop Restaurant, F-10 Islamabad</span>
@@ -171,7 +169,7 @@ export function HeroSection() {
           {/* Action CTAs */}
           <motion.div
             {...rise(1.5)}
-            className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 pt-4"
+            className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4"
           >
             <Magnetic className="w-full sm:w-auto">
               <Link href="/reservations" className="block w-full sm:w-auto">
@@ -193,23 +191,9 @@ export function HeroSection() {
               </Link>
             </Magnetic>
           </motion.div>
-        </motion.div>
 
-        {/* 3D carousel of dishes */}
-        <motion.div style={{ y: copyY }}>
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9, y: 40 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            transition={{ duration: 1.1, delay: 0.5, ease: EASE }}
-          >
-            <HeroCarousel3D />
-          </motion.div>
-        </motion.div>
-        </div>
-
-        <motion.div style={{ y: copyY, opacity: copyOpacity }} className="text-center">
           {/* Floating luxury status pill */}
-          <motion.div {...rise(1.7)} className="pt-12">
+          <motion.div {...rise(1.7)} className="pt-8">
             <motion.div
               animate={{ y: [0, -8, 0] }}
               transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}

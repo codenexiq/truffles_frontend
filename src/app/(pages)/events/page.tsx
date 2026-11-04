@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import Link from "next/link";
 import { MessageCircle } from "lucide-react";
 import { Container } from "@/components/ui/Container";
@@ -9,6 +8,10 @@ import { EventTypeGrid } from "@/components/events/EventTypeGrid";
 import { EventPackages } from "@/components/events/EventPackages";
 import { EnquirySection } from "@/components/events/EnquirySection";
 import { EventGallery } from "@/components/events/EventGallery";
+import { EventsHeroBg } from "@/components/events/EventsHeroBg";
+import { HeroParticles } from "@/components/ui/HeroParticles";
+import { Marquee } from "@/components/sections/Marquee";
+import { EVENT_TYPES } from "@/data/eventsData";
 import { SITE_CONFIG } from "@/constants";
 import { IMAGES } from "@/data/images";
 import { whatsappLink } from "@/utils";
@@ -24,17 +27,10 @@ export default function EventsPage() {
     <>
       {/* Page hero */}
       <section className="theme-dark relative isolate overflow-hidden bg-band pb-24 pt-40 text-center sm:pb-28 sm:pt-48">
-        <Image
-          src={IMAGES.evLongTable}
-          alt=""
-          aria-hidden
-          fill
-          priority
-          sizes="100vw"
-          className="object-cover opacity-40 animate-kenburns"
-        />
+        <EventsHeroBg src={IMAGES.evLongTable} />
         <div className="absolute inset-0 bg-gradient-to-b from-band/80 via-band/55 to-page" />
         <div className="aurora" />
+        <HeroParticles className="pointer-events-none absolute inset-0" />
 
         <Container className="relative z-10">
           <span className="inline-flex items-center gap-2 rounded-full border border-gold/40 bg-black/40 px-4 py-1.5 text-[11px] uppercase tracking-[0.28em] text-gold-light backdrop-blur-md">
@@ -77,6 +73,7 @@ export default function EventsPage() {
         </Container>
       </section>
 
+      <Marquee items={EVENT_TYPES.map((t) => t.title)} />
       <EventTypeGrid />
       <EventPackages />
       <EnquirySection />

@@ -4,18 +4,14 @@ import { useCallback, useEffect, useState, useSyncExternalStore } from "react";
 import { createPortal } from "react-dom";
 import Image from "next/image";
 import { AnimatePresence, motion } from "framer-motion";
-import { ChevronLeft, ChevronRight, Play, X } from "lucide-react";
+import { Camera, ChevronLeft, ChevronRight, MapPin, Play, X } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { AnimatedTabs } from "@/components/motion/AnimatedTabs";
-import { EVENT_GALLERY, EVENT_TYPES, type EventTypeId } from "@/data/eventsData";
-import { cn } from "@/utils";
+import { EVENT_GALLERY, EVENT_TYPES, eventTypeTitle, type EventTypeId } from "@/data/eventsData";
+import { EventCardUI } from "./EventCardUI";
 
 const subscribe = () => () => {};
-
-/** Grid spans so the gallery reads as a mosaic rather than a flat grid. */
-const spanFor = (i: number) =>
-  i % 7 === 0 ? "sm:col-span-2 sm:row-span-2" : i % 7 === 3 ? "sm:row-span-2" : "";
 
 export function EventGallery() {
   const [filter, setFilter] = useState<"all" | EventTypeId>("all");
@@ -73,41 +69,34 @@ export function EventGallery() {
           tabs={tabs}
         />
 
-        <motion.div layout className="grid auto-rows-[190px] grid-cols-2 gap-3 sm:auto-rows-[210px] sm:grid-cols-3 sm:gap-4 lg:grid-cols-4 [grid-auto-flow:dense]">
+        <motion.div layout className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
           <AnimatePresence mode="popLayout">
             {items.map((g, i) => (
-              <motion.button
+              <motion.div
                 key={g.id}
-                type="button"
                 layout
-                initial={{ opacity: 0, scale: 0.9 }}
-                whileInView={{ opacity: 1, scale: 1 }}
+                initial="hidden"
+                whileInView="show"
                 exit={{ opacity: 0, scale: 0.9, transition: { duration: 0.2 } }}
-                viewport={{ once: true, amount: 0.1 }}
-                transition={{ type: "spring", stiffness: 150, damping: 20, delay: (i % 4) * 0.05 }}
-                onClick={() => setOpen(i)}
-                aria-label={`Open photo: ${g.alt}`}
-                className={cn(
-                  "theme-dark group relative cursor-pointer overflow-hidden rounded-2xl border border-gold/20 outline-none focus-visible:ring-2 focus-visible:ring-gold",
-                  spanFor(i)
-                )}
+                viewport={{ once: true, amount: 0.12 }}
+                // a little wave across each row of four cards
+                variants={{ hidden: {}, show: { transition: { delayChildren: (i % 4) * 0.1 } } }}
+                className="h-full"
               >
-                <Image
-                  src={g.src}
+                <EventCardUI
+                  index={i}
+                  image={g.src}
                   alt={g.alt}
-                  fill
-                  sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                  className="object-cover transition-transform duration-[1200ms] ease-out group-hover:scale-110"
+                  title={eventTypeTitle(g.type)}
+                  subtitle={g.alt}
+                  clamp
+                  badges={g.video ? [{ label: "Video", tone: "gold", icon: <Play className="h-3 w-3 fill-current" /> }] : undefined}
+                  infoA={{ icon: <Camera className="h-5 w-5" />, text: g.video ? "Video clip" : "Event photo" }}
+                  infoB={{ icon: <MapPin className="h-5 w-5" />, text: "F-10 Rooftop" }}
+                  buttonLabel={g.video ? "Watch Clip" : "View Photo"}
+                  onClick={() => setOpen(i)}
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
-                {g.video && (
-                  <span className="absolute inset-0 flex items-center justify-center">
-                    <span className="flex h-14 w-14 items-center justify-center rounded-full border border-white/50 bg-black/50 text-white backdrop-blur-sm transition-transform group-hover:scale-110">
-                      <Play className="ml-0.5 h-6 w-6 fill-white" />
-                    </span>
-                  </span>
-                )}
-              </motion.button>
+              </motion.div>
             ))}
           </AnimatePresence>
         </motion.div>

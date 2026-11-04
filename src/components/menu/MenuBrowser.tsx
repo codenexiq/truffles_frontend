@@ -1,13 +1,14 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
-import { motion } from "framer-motion";
-import { ChevronLeft, ChevronRight, Leaf, Search, Star, X } from "lucide-react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { Leaf, Search, Star, X } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { AnimatedTabs } from "@/components/motion/AnimatedTabs";
 import { DishCard } from "./DishCard";
-import { HIGHLIGHTS, MENU_ITEMS, MENU_SECTIONS, type MenuSectionId } from "@/data/menuItems";
+import { HighlightsStrip } from "./HighlightsStrip";
+import { MENU_ITEMS, MENU_SECTIONS, type MenuSectionId } from "@/data/menuItems";
 import { cn } from "@/utils";
 
 const toggleCls = (on: boolean) =>
@@ -18,12 +19,12 @@ const toggleCls = (on: boolean) =>
       : "border-white/10 bg-surface text-zinc-400 hover:border-white/25 hover:text-zinc-100"
   );
 
-export function MenuBrowser() {
+export function MenuBrowser({ afterHighlights }: { afterHighlights?: ReactNode }) {
+  const reduce = useReducedMotion();
   const [query, setQuery] = useState("");
   const [onlyBest, setOnlyBest] = useState(false);
   const [onlyVeg, setOnlyVeg] = useState(false);
   const [active, setActive] = useState<MenuSectionId>(MENU_SECTIONS[0].id);
-  const stripRef = useRef<HTMLDivElement | null>(null);
 
   const filtering = query.trim() !== "" || onlyBest || onlyVeg;
 
@@ -67,9 +68,6 @@ export function MenuBrowser() {
     document.getElementById(`menu-${id}`)?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
-  const scrollStrip = (dir: number) =>
-    stripRef.current?.scrollBy({ left: dir * 340, behavior: "smooth" });
-
   const reset = () => {
     setQuery("");
     setOnlyBest(false);
@@ -89,37 +87,13 @@ export function MenuBrowser() {
               className="!mb-10"
             />
 
-            <div className="relative">
-              <div
-                ref={stripRef}
-                className="-mx-4 flex snap-x snap-mandatory gap-5 overflow-x-auto px-4 pb-6 [scrollbar-width:none] sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8 [&::-webkit-scrollbar]:hidden"
-              >
-                {HIGHLIGHTS.map((d, i) => (
-                  <div key={d.id} className="w-[78vw] shrink-0 snap-start sm:w-[320px]">
-                    <DishCard dish={d} large index={i} />
-                  </div>
-                ))}
-              </div>
-              <button
-                type="button"
-                aria-label="Scroll favourites left"
-                onClick={() => scrollStrip(-1)}
-                className="absolute -left-2 top-1/3 z-10 hidden rounded-full border border-gold/40 bg-surface p-2.5 text-gold shadow-lg transition-colors hover:bg-gold hover:text-[#0a0a0c] lg:block cursor-pointer"
-              >
-                <ChevronLeft className="h-5 w-5" />
-              </button>
-              <button
-                type="button"
-                aria-label="Scroll favourites right"
-                onClick={() => scrollStrip(1)}
-                className="absolute -right-2 top-1/3 z-10 hidden rounded-full border border-gold/40 bg-surface p-2.5 text-gold shadow-lg transition-colors hover:bg-gold hover:text-[#0a0a0c] lg:block cursor-pointer"
-              >
-                <ChevronRight className="h-5 w-5" />
-              </button>
-            </div>
+            <HighlightsStrip />
           </Container>
         </section>
       )}
+
+      {/* Slot for the 3D cupcake carousel: directly after the bestsellers strip */}
+      {!filtering && <div className="mt-16 sm:mt-24">{afterHighlights}</div>}
 
       {/* Sticky: categories + search + filters */}
       <div className="sticky top-[var(--header-h,0px)] z-40 mt-10 border-y border-white/10 bg-page/90 backdrop-blur-xl transition-[top] duration-500">
@@ -167,8 +141,20 @@ export function MenuBrowser() {
       </div>
 
       {/* Menu sections */}
-      <div className="relative bg-page pb-24 pt-16">
-        <Container>
+      <div className="relative overflow-hidden bg-page pb-24 pt-16">
+        <motion.div
+          className="pointer-events-none absolute -left-24 top-1/4 h-80 w-80 rounded-full bg-gold/15 blur-3xl"
+          animate={reduce ? undefined : { y: [0, 60, 0], x: [0, 30, 0] }}
+          transition={{ duration: 14, ease: "easeInOut", repeat: Infinity }}
+          aria-hidden="true"
+        />
+        <motion.div
+          className="pointer-events-none absolute -right-24 top-2/3 h-96 w-96 rounded-full bg-gold/10 blur-3xl"
+          animate={reduce ? undefined : { y: [0, -70, 0], x: [0, -30, 0] }}
+          transition={{ duration: 17, ease: "easeInOut", repeat: Infinity }}
+          aria-hidden="true"
+        />
+        <Container className="relative z-10">
           <p className="sr-only" role="status" aria-live="polite">
             {visible.length} dishes shown
           </p>
@@ -185,15 +171,39 @@ export function MenuBrowser() {
                 transition={{ duration: 0.4 }}
                 className="scroll-mt-40 pb-20 last:pb-0"
               >
-                <div className="mb-8 flex flex-wrap items-end justify-between gap-3 border-b border-white/10 pb-4">
+                <motion.div
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, amount: 0.6 }}
+                  transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+                  className="relative mb-8 flex flex-wrap items-end justify-between gap-3 pb-4"
+                >
                   <div>
                     <h2 className="font-serif text-3xl text-zinc-100 sm:text-4xl">{s.title}</h2>
                     <p className="mt-1 text-sm font-light text-zinc-400">{s.blurb}</p>
                   </div>
-                  <span className="text-xs uppercase tracking-[0.2em] text-gold">
-                    {s.dishes.length} {s.dishes.length === 1 ? "dish" : "dishes"}
-                  </span>
-                </div>
+                  <AnimatePresence mode="wait" initial={false}>
+                    <motion.span
+                      key={s.dishes.length}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      transition={{ duration: 0.25 }}
+                      className="text-xs uppercase tracking-[0.2em] text-gold"
+                    >
+                      {s.dishes.length} {s.dishes.length === 1 ? "dish" : "dishes"}
+                    </motion.span>
+                  </AnimatePresence>
+                  {/* gold rule that draws itself under the heading */}
+                  <motion.span
+                    aria-hidden="true"
+                    initial={{ scaleX: 0 }}
+                    whileInView={{ scaleX: 1 }}
+                    viewport={{ once: true, amount: 0.6 }}
+                    transition={{ duration: 1.2, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+                    className="absolute inset-x-0 bottom-0 h-px origin-left bg-gradient-to-r from-gold via-gold/40 to-transparent"
+                  />
+                </motion.div>
 
                 <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
                   {s.dishes.map((d, i) => (
