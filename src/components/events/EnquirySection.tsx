@@ -1,17 +1,17 @@
 "use client";
 
 import { useEffect, useState, type FormEvent } from "react";
-import { AnimatePresence, motion } from "framer-motion";
-import { AlertCircle, CheckCircle2, MapPin, MessageCircle, Phone, Send } from "lucide-react";
+import { AnimatePresence, motion, useReducedMotion, type Variants } from "framer-motion";
+import { AlertCircle, CheckCircle2, MessageCircle, Send } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { SectionHeading } from "@/components/ui/SectionHeading";
-import { Reveal } from "@/components/ui/Reveal";
-import { Button } from "@/components/ui/Button";
 import { Honeypot } from "@/components/ui/Honeypot";
 import { SITE_CONFIG } from "@/constants";
 import { isValidEmail, whatsappLink } from "@/utils";
 import { EVENT_TYPES, eventTypeShort, eventTypeTitle } from "@/data/eventsData";
 import { EVENT_TYPE_EVENT } from "./eventBus";
+import { EventQuickBooking } from "./EventQuickBooking";
+import { FloatingGlows } from "@/components/motion/FloatingGlows";
 import { API_V1 } from "@/lib/backend";
 
 const ENDPOINT = `${API_V1}/contact`;
@@ -30,9 +30,24 @@ interface Fields {
 
 const EMPTY: Fields = { name: "", phone: "", email: "", type: "", date: "", guests: "", notes: "" };
 
+// The form lives on a white rounded card (like the cards on the other pages), so its colours are fixed hex values.
 const inputCls =
-  "w-full rounded-lg border border-white/15 bg-surface px-4 py-3 text-sm text-zinc-100 transition placeholder:text-zinc-500 focus:border-gold focus:outline-none focus:ring-1 focus:ring-gold";
-const labelCls = "mb-2 block text-xs uppercase tracking-[0.15em] text-zinc-400";
+  "w-full rounded-2xl border border-[#e4e4e7] bg-[#fafafa] px-4 py-3 text-[0.95rem] text-[#18181b] transition-all duration-300 placeholder:text-[#a1a1aa] hover:border-[#d4af37]/60 focus:border-[#d4af37] focus:bg-[#ffffff] focus:outline-none focus:ring-4 focus:ring-[#d4af37]/20";
+const labelCls = "mb-2 block text-[11px] font-semibold uppercase tracking-[0.18em] text-[#71717a]";
+const errCls = "mt-1.5 text-xs font-medium text-[#dc2626]";
+const pillBtn =
+  "relative inline-flex h-12 items-center justify-center gap-2 overflow-hidden rounded-full px-7 text-[0.98rem] font-semibold outline-none transition focus-visible:ring-2 focus-visible:ring-[#d4af37] disabled:pointer-events-none disabled:opacity-60";
+
+const EASE = [0.16, 1, 0.3, 1] as const;
+/** The card flies in, then each row of the form rises in one after another. */
+const formIn: Variants = {
+  hidden: { opacity: 0, y: 40 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.8, ease: EASE, when: "beforeChildren", staggerChildren: 0.08 } },
+};
+const rowIn: Variants = {
+  hidden: { opacity: 0, y: 18 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.55, ease: EASE } },
+};
 
 /** Plain-text summary used for both the server enquiry and WhatsApp. */
 function summary(f: Fields) {
@@ -48,6 +63,7 @@ function summary(f: Fields) {
 }
 
 export function EnquirySection() {
+  const reduce = useReducedMotion();
   const [f, setF] = useState<Fields>(EMPTY);
   const [status, setStatus] = useState<Status>("idle");
   const [trap, setTrap] = useState("");
@@ -112,7 +128,8 @@ ${summary(f)}`.trim();
 
   return (
     <section id="enquire" className="relative scroll-mt-24 overflow-hidden bg-page py-20 sm:py-28">
-      <Container>
+      <FloatingGlows />
+      <Container className="relative z-10">
         <SectionHeading
           badge="HOW TO BOOK"
           title="Plan Your Event With Us"
@@ -121,166 +138,180 @@ ${summary(f)}`.trim();
 
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-12 lg:gap-12">
           {/* Enquiry form */}
-          <Reveal variant="left" className="lg:col-span-7">
-            <div className="luxury-card relative overflow-hidden rounded-2xl p-6 sm:p-9">
-              <AnimatePresence mode="wait" initial={false}>
-                {status === "sent" ? (
+          <motion.div
+            initial="hidden"
+            whileInView="show"
+            viewport={{ once: true, amount: 0.1 }}
+            variants={formIn}
+            className="relative overflow-hidden rounded-[2rem] bg-[#ffffff] p-6 text-[#18181b] shadow-[0_30px_60px_-28px_rgba(0,0,0,0.55)] ring-1 ring-black/5 sm:p-9 lg:col-span-7"
+          >
+            <AnimatePresence mode="wait" initial={false}>
+              {status === "sent" ? (
+                <motion.div
+                  key="sent"
+                  initial={{ opacity: 0, scale: 0.92 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ type: "spring", stiffness: 180, damping: 18 }}
+                  className="space-y-5 py-6 text-center"
+                >
                   <motion.div
-                    key="sent"
-                    initial={{ opacity: 0, scale: 0.92 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0 }}
-                    transition={{ type: "spring", stiffness: 180, damping: 18 }}
-                    className="space-y-5 py-6 text-center"
+                    initial={{ scale: 0, rotate: -90 }}
+                    animate={{ scale: 1, rotate: 0 }}
+                    transition={{ type: "spring", stiffness: 260, damping: 14, delay: 0.1 }}
+                    className="mx-auto flex h-16 w-16 items-center justify-center rounded-full border border-[#d4af37] bg-[#0a0a0c] text-[#d4af37]"
                   >
-                    <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full border border-gold bg-gold/10 text-gold">
-                      <CheckCircle2 className="h-8 w-8" />
-                    </div>
-                    <h3 className="font-serif text-3xl text-zinc-100">Enquiry sent</h3>
-                    <p className="mx-auto max-w-md text-sm font-light leading-relaxed text-zinc-400">
-                      Thank you, {f.name.split(" ")[0]}. Your {typeShort} enquiry is with us. For a faster
-                      reply you can also message us on WhatsApp.
+                    <CheckCircle2 className="h-8 w-8" />
+                  </motion.div>
+                  <h3 className="font-sans text-3xl font-semibold text-[#18181b]">Enquiry sent</h3>
+                  <p className="mx-auto max-w-md text-[0.95rem] font-light leading-relaxed text-[#52525b]">
+                    Thank you, {f.name.split(" ")[0]}. Your {typeShort} enquiry is with us. For a faster reply you can also
+                    message us on WhatsApp.
+                  </p>
+                  <div className="flex flex-wrap items-center justify-center gap-3">
+                    <a
+                      href={waHref}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={`${pillBtn} bg-gradient-to-r from-[#e5c378] via-[#d4af37] to-[#aa771c] text-[#0a0a0c] shadow-[0_12px_26px_-12px_rgba(170,119,28,0.85)] hover:brightness-110`}
+                    >
+                      <MessageCircle className="h-4 w-4" /> Message on WhatsApp
+                    </a>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setF(EMPTY);
+                        setStatus("idle");
+                      }}
+                      className={`${pillBtn} cursor-pointer border border-[#18181b] text-[#18181b] hover:bg-[#18181b] hover:text-[#ffffff]`}
+                    >
+                      Send Another
+                    </button>
+                  </div>
+                </motion.div>
+              ) : (
+                <motion.form key="form" onSubmit={onSubmit} noValidate exit={{ opacity: 0 }} className="space-y-5">
+                  <motion.div variants={rowIn}>
+                    <p className="inline-block rounded-full bg-gradient-to-r from-[#e5c378] to-[#c99a2e] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-[#1a1305]">
+                      Event enquiry
                     </p>
-                    <div className="flex flex-wrap items-center justify-center gap-3">
-                      <a href={waHref} target="_blank" rel="noopener noreferrer">
-                        <Button variant="primary" size="md" className="flex items-center gap-2">
-                          <MessageCircle className="h-4 w-4" /> Message on WhatsApp
-                        </Button>
-                      </a>
-                      <Button
-                        variant="outline"
-                        size="md"
-                        onClick={() => {
-                          setF(EMPTY);
-                          setStatus("idle");
-                        }}
-                      >
-                        Send Another
-                      </Button>
+                    <h3 className="mt-3 font-sans text-[1.6rem] font-semibold leading-tight text-[#18181b]">Tell us about your event</h3>
+                  </motion.div>
+
+                  <Honeypot value={trap} onChange={setTrap} />
+                  <motion.div variants={rowIn} className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+                    <div>
+                      <label htmlFor="ev-name" className={labelCls}>Your name *</label>
+                      <input id="ev-name" className={inputCls} value={f.name} onChange={set("name")} autoComplete="name" placeholder="Full name" />
+                      {errors.name && <p className={errCls}>{errors.name}</p>}
+                    </div>
+                    <div>
+                      <label htmlFor="ev-phone" className={labelCls}>Phone *</label>
+                      <input id="ev-phone" type="tel" className={inputCls} value={f.phone} onChange={set("phone")} autoComplete="tel" placeholder="03xx-xxxxxxx" />
+                      {errors.phone && <p className={errCls}>{errors.phone}</p>}
                     </div>
                   </motion.div>
-                ) : (
-                  <motion.form
-                    key="form"
-                    onSubmit={onSubmit}
-                    noValidate
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    className="space-y-5"
-                  >
-                    <Honeypot value={trap} onChange={setTrap} />
-                    <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-                      <div>
-                        <label htmlFor="ev-name" className={labelCls}>Your name *</label>
-                        <input id="ev-name" className={inputCls} value={f.name} onChange={set("name")} autoComplete="name" placeholder="Full name" />
-                        {errors.name && <p className="mt-1.5 text-xs text-red-400">{errors.name}</p>}
-                      </div>
-                      <div>
-                        <label htmlFor="ev-phone" className={labelCls}>Phone *</label>
-                        <input id="ev-phone" type="tel" className={inputCls} value={f.phone} onChange={set("phone")} autoComplete="tel" placeholder="03xx-xxxxxxx" />
-                        {errors.phone && <p className="mt-1.5 text-xs text-red-400">{errors.phone}</p>}
-                      </div>
-                    </div>
 
-                    <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-                      <div>
-                        <label htmlFor="ev-email" className={labelCls}>Email *</label>
-                        <input id="ev-email" type="email" className={inputCls} value={f.email} onChange={set("email")} autoComplete="email" placeholder="you@email.com" />
-                        {errors.email && <p className="mt-1.5 text-xs text-red-400">{errors.email}</p>}
-                      </div>
-                      <div>
-                        <label htmlFor="ev-type" className={labelCls}>Event type *</label>
-                        <select id="ev-type" className={inputCls} value={f.type} onChange={set("type")}>
-                          <option value="">Choose an event</option>
-                          {EVENT_TYPES.map((t) => (
-                            <option key={t.id} value={t.id}>{t.title}</option>
-                          ))}
-                        </select>
-                        {errors.type && <p className="mt-1.5 text-xs text-red-400">{errors.type}</p>}
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-                      <div>
-                        <label htmlFor="ev-date" className={labelCls}>Preferred date</label>
-                        <input id="ev-date" type="date" min={minDate} className={inputCls} value={f.date} onChange={set("date")} />
-                      </div>
-                      <div>
-                        <label htmlFor="ev-guests" className={labelCls}>Number of guests</label>
-                        <input id="ev-guests" type="number" min={1} className={inputCls} value={f.guests} onChange={set("guests")} placeholder="e.g. 25" />
-                      </div>
-                    </div>
-
+                  <motion.div variants={rowIn} className="grid grid-cols-1 gap-5 sm:grid-cols-2">
                     <div>
-                      <label htmlFor="ev-notes" className={labelCls}>Tell us about your event</label>
-                      <textarea id="ev-notes" rows={4} className={`${inputCls} resize-none`} value={f.notes} onChange={set("notes")} placeholder="Theme, decor ideas, dietary needs..." />
+                      <label htmlFor="ev-email" className={labelCls}>Email *</label>
+                      <input id="ev-email" type="email" className={inputCls} value={f.email} onChange={set("email")} autoComplete="email" placeholder="you@email.com" />
+                      {errors.email && <p className={errCls}>{errors.email}</p>}
                     </div>
+                    <div>
+                      <label htmlFor="ev-type" className={labelCls}>Event type *</label>
+                      <select id="ev-type" className={inputCls} value={f.type} onChange={set("type")}>
+                        <option value="">Choose an event</option>
+                        {EVENT_TYPES.map((t) => (
+                          <option key={t.id} value={t.id}>{t.title}</option>
+                        ))}
+                      </select>
+                      {errors.type && <p className={errCls}>{errors.type}</p>}
+                    </div>
+                  </motion.div>
 
+                  <motion.div variants={rowIn} className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+                    <div>
+                      <label htmlFor="ev-date" className={labelCls}>Preferred date</label>
+                      <input id="ev-date" type="date" min={minDate} className={inputCls} value={f.date} onChange={set("date")} />
+                    </div>
+                    <div>
+                      <label htmlFor="ev-guests" className={labelCls}>Number of guests</label>
+                      <input id="ev-guests" type="number" min={1} className={inputCls} value={f.guests} onChange={set("guests")} placeholder="e.g. 25" />
+                    </div>
+                  </motion.div>
+
+                  <motion.div variants={rowIn}>
+                    <label htmlFor="ev-notes" className={labelCls}>Tell us about your event</label>
+                    <textarea id="ev-notes" rows={4} className={`${inputCls} resize-none`} value={f.notes} onChange={set("notes")} placeholder="Theme, decor ideas, dietary needs..." />
+                  </motion.div>
+
+                  <AnimatePresence>
                     {status === "error" && (
-                      <div role="alert" className="flex items-start gap-2.5 rounded-lg border border-red-400/40 bg-red-500/10 px-4 py-3 text-sm text-red-300">
-                        <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
-                        <span>
-                          We couldn&apos;t send your enquiry just now. Please message us on WhatsApp or call{" "}
-                          {SITE_CONFIG.phones[0].display} and we will take it from there.
-                        </span>
-                      </div>
+                      <motion.div
+                        role="alert"
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: "auto" }}
+                        exit={{ opacity: 0, height: 0 }}
+                        className="overflow-hidden"
+                      >
+                        <div className="flex items-start gap-2.5 rounded-2xl border border-[#fecaca] bg-[#fef2f2] px-4 py-3 text-sm text-[#b91c1c]">
+                          <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
+                          <span>
+                            We couldn&apos;t send your enquiry just now. Please message us on WhatsApp or call{" "}
+                            {SITE_CONFIG.phones[0].display} and we will take it from there.
+                          </span>
+                        </div>
+                      </motion.div>
                     )}
+                  </AnimatePresence>
 
-                    <div className="flex flex-wrap items-center gap-3 pt-1">
-                      <Button type="submit" variant="primary" size="lg" disabled={status === "sending"} className="flex items-center gap-2">
+                  <motion.div variants={rowIn} className="flex flex-wrap items-center gap-3 pt-1">
+                    <motion.button
+                      type="submit"
+                      disabled={status === "sending"}
+                      whileHover={reduce ? undefined : { scale: 1.03 }}
+                      whileTap={{ scale: 0.96 }}
+                      className={`${pillBtn} cursor-pointer bg-gradient-to-r from-[#e5c378] via-[#d4af37] to-[#aa771c] text-[#0a0a0c] shadow-[0_12px_26px_-12px_rgba(170,119,28,0.85)]`}
+                    >
+                      {!reduce && (
+                        <motion.span
+                          aria-hidden="true"
+                          className="pointer-events-none absolute inset-y-0 w-1/4 -skew-x-12 bg-gradient-to-r from-transparent via-white/60 to-transparent"
+                          initial={{ left: "-30%" }}
+                          animate={{ left: ["-30%", "130%"] }}
+                          transition={{ duration: 1.4, ease: "easeInOut", repeat: Infinity, repeatDelay: 2.8 }}
+                        />
+                      )}
+                      <motion.span
+                        className="relative flex"
+                        animate={status === "sending" && !reduce ? { x: [0, 4, 0] } : { x: 0 }}
+                        transition={{ duration: 0.7, repeat: status === "sending" ? Infinity : 0 }}
+                      >
                         <Send className="h-4 w-4" />
-                        {status === "sending" ? "Sending..." : "Send Enquiry"}
-                      </Button>
-                      <a href={waHref} target="_blank" rel="noopener noreferrer">
-                        <Button type="button" variant="outline" size="lg" className="flex items-center gap-2">
-                          <MessageCircle className="h-4 w-4" /> Or WhatsApp
-                        </Button>
-                      </a>
-                    </div>
-                  </motion.form>
-                )}
-              </AnimatePresence>
-            </div>
-          </Reveal>
+                      </motion.span>
+                      <span className="relative">{status === "sending" ? "Sending..." : "Send Enquiry"}</span>
+                    </motion.button>
+                    <motion.a
+                      href={waHref}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      whileHover={reduce ? undefined : { scale: 1.03 }}
+                      whileTap={{ scale: 0.96 }}
+                      className={`${pillBtn} border border-[#18181b] text-[#18181b] hover:bg-[#18181b] hover:text-[#ffffff]`}
+                    >
+                      <MessageCircle className="h-4 w-4" /> Or WhatsApp
+                    </motion.a>
+                  </motion.div>
+                </motion.form>
+              )}
+            </AnimatePresence>
+          </motion.div>
 
           {/* Quick booking */}
-          <Reveal variant="right" delay={150} className="lg:col-span-5">
-            <div className="space-y-5">
-              <div className="luxury-card rounded-2xl p-7">
-                <p className="text-[11px] uppercase tracking-[0.25em] text-gold">Quick booking</p>
-                <h3 className="mt-2 font-serif text-2xl text-zinc-100">Call or WhatsApp</h3>
-                <p className="mt-2 text-sm font-light text-zinc-400">
-                  The fastest way to check a date and talk through your plans.
-                </p>
-
-                <div className="mt-5 space-y-3">
-                  <a href={whatsappLink(SITE_CONFIG.whatsapp, "Hello Truffles! I would like to book an event.")} target="_blank" rel="noopener noreferrer" className="block">
-                    <Button variant="primary" size="lg" className="flex w-full items-center justify-center gap-2">
-                      <MessageCircle className="h-4 w-4" /> WhatsApp {SITE_CONFIG.phones[0].display}
-                    </Button>
-                  </a>
-                  {SITE_CONFIG.phones.map((p) => (
-                    <a key={p.tel} href={`tel:${p.tel}`} className="block">
-                      <Button variant="outline" size="lg" className="flex w-full items-center justify-center gap-2">
-                        <Phone className="h-4 w-4" /> Call {p.display}
-                      </Button>
-                    </a>
-                  ))}
-                </div>
-              </div>
-
-              <div className="luxury-card flex items-start gap-3 rounded-2xl p-6">
-                <MapPin className="mt-0.5 h-5 w-5 shrink-0 text-gold" />
-                <div className="text-sm text-zinc-400">
-                  <p className="font-serif text-lg text-zinc-100">{SITE_CONFIG.address.venue}</p>
-                  <p>
-                    {SITE_CONFIG.address.area}, {SITE_CONFIG.address.city}
-                  </p>
-                </div>
-              </div>
-            </div>
-          </Reveal>
+          <div className="lg:col-span-5">
+            <EventQuickBooking />
+          </div>
         </div>
       </Container>
     </section>
