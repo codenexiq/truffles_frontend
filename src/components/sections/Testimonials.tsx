@@ -2,14 +2,15 @@ import Link from "next/link";
 import { Container } from "@/components/ui/Container";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Reveal } from "@/components/ui/Reveal";
+import { FloatingGlows } from "@/components/motion/FloatingGlows";
 import { TestimonialCard } from "@/components/cards/TestimonialCard";
 import { GUEST_REVIEWS } from "@/data/testimonials";
 
 export function Testimonials() {
   return (
     <section className="py-24 sm:py-28 bg-band relative overflow-hidden border-t border-white/5">
-      {/* Background ambient lighting */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] bg-[radial-gradient(ellipse_at_center,_rgba(212,175,55,0.05)_0%,_transparent_70%)] pointer-events-none" />
+      {/* Soft gold glows that drift slowly behind the cards */}
+      <FloatingGlows />
 
       <Container className="relative z-10">
         <SectionHeading
@@ -20,9 +21,7 @@ export function Testimonials() {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
           {GUEST_REVIEWS.map((review, i) => (
-            <Reveal key={review.id} variant="up" delay={i * 120} className="h-full">
-              <TestimonialCard testimonial={review} />
-            </Reveal>
+            <TestimonialCard key={review.id} testimonial={review} index={i} />
           ))}
         </div>
 

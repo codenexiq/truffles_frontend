@@ -49,9 +49,7 @@ export function GuestStories() {
 
         <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
           {GUEST_REVIEWS.map((r, i) => (
-            <Reveal key={r.id} delay={i * 120} className="h-full">
-              <TestimonialCard testimonial={r} />
-            </Reveal>
+            <TestimonialCard key={r.id} testimonial={r} index={i} />
           ))}
         </div>
 
