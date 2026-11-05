@@ -97,7 +97,9 @@ const nextConfig: NextConfig = {
     ];
   },
   // Adds integrity hashes to scripts, which lets the CSP stay strict without nonces.
-  experimental: { sri: { algorithm: "sha256" } },
+  // A tab that is already open keeps pages it loaded for this long before asking the server again (Next's default is
+  // 5 minutes). Kept short so that switching maintenance mode on reaches visitors who are in the middle of browsing.
+  experimental: { sri: { algorithm: "sha256" }, staleTimes: { dynamic: 0, static: 30 } },
 };
 
 export default nextConfig;

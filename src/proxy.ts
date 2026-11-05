@@ -11,7 +11,14 @@ import { getMaintenanceNotice } from "@/lib/siteStatus";
  */
 export async function proxy(request: NextRequest) {
   const notice = await getMaintenanceNotice();
-  if (!notice) return NextResponse.next();
+  if (!notice) {
+    // Open site. Next marks prerendered pages (like the home page) as cacheable for a YEAR by a shared cache such as the
+    // host's CDN. A copy kept that way never reaches this check, so switching maintenance on would not show on it.
+    // Pages must be re-checked with the server each time; pictures, fonts and scripts (not matched here) stay cached.
+    const open = NextResponse.next();
+    open.headers.set("Cache-Control", "private, no-cache, no-store, max-age=0, must-revalidate");
+    return open;
+  }
 
   // Pass the text along to the page (set here, on the server, from the API's answer).
   const headers = new Headers(request.headers);
