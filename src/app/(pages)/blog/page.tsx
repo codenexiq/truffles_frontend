@@ -8,6 +8,7 @@ import { HeroParticles } from "@/components/ui/HeroParticles";
 import { Marquee } from "@/components/sections/Marquee";
 import { BLOG_CATEGORIES } from "@/data/blogPosts";
 import { IMAGES } from "@/data/images";
+import { getAllPosts } from "@/lib/blog";
 
 export const metadata: Metadata = {
   title: "Blog | Truffles Rooftop, F-10 Islamabad",
@@ -15,7 +16,8 @@ export const metadata: Metadata = {
     "Dishes, drink pairings, celebration ideas, videos and guest stories from Truffles Rooftop Restaurant, F-10 Islamabad.",
 };
 
-export default function BlogPage() {
+export default async function BlogPage() {
+  const posts = await getAllPosts();
   return (
     <>
       {/* Page hero */}
@@ -45,7 +47,7 @@ export default function BlogPage() {
       </section>
 
       <Marquee items={[...BLOG_CATEGORIES.map((c) => c.label), "Guest Stories", "Rooftop Dining", "Behind the Scenes"]} />
-      <BlogIndex />
+      <BlogIndex posts={posts} />
       <GuestStories />
     </>
   );

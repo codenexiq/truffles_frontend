@@ -13,20 +13,17 @@ import { PostCard } from "@/components/blog/PostCard";
 import { ShareButtons } from "@/components/blog/ShareButtons";
 import { CTASection } from "@/components/sections/CTASection";
 import { SITE_CONFIG } from "@/constants";
-import {
-  POSTS,
-  categoryLabel,
-  formatPostDate,
-  postBySlug,
-  readingMinutes,
-} from "@/data/blogPosts";
+import { categoryLabel, formatPostDate, readingMinutes } from "@/data/blogPosts";
+import { getAllPosts, getPost } from "@/lib/blog";
 
 interface BlogPostPageProps {
   params: Promise<{ slug: string }>;
 }
 
-export function generateStaticParams() {
-  return POSTS.map((p) => ({ slug: p.slug }));
+// Posts that exist at build time are pre-built. A post published later from the dashboard is built the first time
+// someone opens it, then kept (see lib/blog.ts).
+export async function generateStaticParams() {
+  return (await getAllPosts()).map((p) => ({ slug: p.slug }));
 }
 
 // All posts are pre-built, so navigation is fast. Opting out of the dev-only
@@ -37,7 +34,7 @@ export const instant = false;
 
 export async function generateMetadata({ params }: BlogPostPageProps): Promise<Metadata> {
   const { slug } = await params;
-  const post = postBySlug(slug);
+  const post = await getPost(slug);
   if (!post) return { title: "Post not found | Truffles Rooftop" };
   return {
     title: `${post.title} | Truffles Rooftop`,
@@ -52,10 +49,10 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
 
 async function PostContent({ params }: BlogPostPageProps) {
   const { slug } = await params;
-  const post = postBySlug(slug);
+  const post = await getPost(slug);
   if (!post) notFound();
 
-  const related = POSTS.filter((p) => p.slug !== post.slug)
+  const related = (await getAllPosts()).filter((p) => p.slug !== post.slug)
     .sort((a, b) => Number(b.category === post.category) - Number(a.category === post.category))
     .slice(0, 2);
 

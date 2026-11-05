@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Playfair_Display, Inter } from "next/font/google";
-import { Header } from "@/components/layout/Header";
-import { Footer } from "@/components/layout/Footer";
+import { SiteChrome } from "@/components/layout/SiteChrome";
 import { MotionProvider } from "@/components/motion/MotionProvider";
 import { SITE_CONFIG } from "@/constants";
 import "./globals.css";
@@ -75,9 +74,7 @@ export default function RootLayout({
       </head>
       <body className="min-h-full flex flex-col font-sans bg-page text-zinc-100 selection:bg-[#d4af37] selection:text-black">
         <MotionProvider>
-          <Header />
-          <main className="flex-1">{children}</main>
-          <Footer />
+          <SiteChrome>{children}</SiteChrome>
         </MotionProvider>
       </body>
     </html>

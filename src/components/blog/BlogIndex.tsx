@@ -8,7 +8,7 @@ import { Container } from "@/components/ui/Container";
 import { FloatingGlows } from "@/components/motion/FloatingGlows";
 import { AnimatedTabs } from "@/components/motion/AnimatedTabs";
 import { PostCard } from "./PostCard";
-import { BLOG_CATEGORIES, POSTS, type BlogCategoryId } from "@/data/blogPosts";
+import { BLOG_CATEGORIES, type BlogCategoryId, type BlogPost } from "@/data/blogPosts";
 
 type Tab = "all" | BlogCategoryId | "stories";
 
@@ -18,7 +18,7 @@ const TABS: { id: Tab; label: string }[] = [
   { id: "stories", label: "Guest Stories" },
 ];
 
-export function BlogIndex() {
+export function BlogIndex({ posts }: { posts: BlogPost[] }) {
   const [filter, setFilter] = useState<"all" | BlogCategoryId>("all");
 
   const onTab = (id: Tab) => {
@@ -32,10 +32,10 @@ export function BlogIndex() {
 
   const shown =
     filter === "all"
-      ? POSTS
+      ? posts
       : filter === "videos"
-        ? POSTS.filter((p) => p.video)
-        : POSTS.filter((p) => p.category === filter);
+        ? posts.filter((p) => p.video)
+        : posts.filter((p) => p.category === filter);
 
   const [featured, ...rest] = shown;
   const showFeatured = filter === "all" && featured;

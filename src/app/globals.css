@@ -93,6 +93,19 @@ html[data-theme="light"] {
   --color-gold-dark: var(--gold-dark);
 }
 
+/* Staff dashboard palette (/dashboard). Own names, so the public site's light/dark remapping of white/zinc never touches it. */
+@theme {
+  --color-dash-bg: #f7f4ee;
+  --color-dash-card: #ffffff;
+  --color-dash-ink: #1f1a14;
+  --color-dash-muted: #6b6155;
+  --color-dash-line: #e8e1d4;
+  --color-dash-gold: #a8782a;
+  --color-dash-gold-dark: #7d5a1c;
+  --color-dash-gold-soft: #f6ecd7;
+  --color-dash-on-gold: #ffffff;
+}
+
 @layer base {
   body {
     background-color: var(--page);

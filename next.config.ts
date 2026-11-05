@@ -32,7 +32,8 @@ const csp = [
   `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""}`,
   // Inline style *attributes* are required by Tailwind/Framer Motion animations.
   "style-src 'self' 'unsafe-inline'",
-  "img-src 'self' data: blob: https://i.ytimg.com",
+  // The Truffles API serves pictures uploaded from the dashboard (blog covers and photos).
+  `img-src 'self' data: blob: https://i.ytimg.com${backendOrigin ? ` ${backendOrigin}` : ""}`,
   "font-src 'self' data:",
   `connect-src 'self'${backendOrigin ? ` ${backendOrigin}` : ""}${isDev ? " ws: wss:" : ""}`,
   "frame-src https://www.youtube-nocookie.com",
@@ -72,10 +73,28 @@ const nextConfig: NextConfig = {
   poweredByHeader: false,
   cacheComponents: true,
   partialPrefetching: true,
-  // Images are all local now, so the image optimizer is not allowed to fetch from any outside site.
-  images: { remotePatterns: [] },
+  // Images are local, except pictures uploaded from the dashboard: those come from the Truffles API's /media/ path.
+  // That one address (and nothing else) may be resized by the image optimizer.
+  images: {
+    remotePatterns: backendOrigin
+      ? [
+          {
+            protocol: new URL(backendOrigin).protocol === "https:" ? "https" : "http",
+            hostname: new URL(backendOrigin).hostname,
+            port: new URL(backendOrigin).port,
+            pathname: "/api/v1/media/**",
+          },
+        ]
+      : [],
+    // Next blocks "localhost" as an image source unless told otherwise; only needed while developing locally.
+    dangerouslyAllowLocalIP: isDev,
+  },
   async headers() {
-    return [{ source: "/:path*", headers: securityHeaders }];
+    return [
+      { source: "/:path*", headers: securityHeaders },
+      // The staff dashboard is private: tell search engines to stay away (the pages also carry a noindex tag).
+      { source: "/dashboard/:path*", headers: [{ key: "X-Robots-Tag", value: "noindex, nofollow" }] },
+    ];
   },
   // Adds integrity hashes to scripts, which lets the CSP stay strict without nonces.
   experimental: { sri: { algorithm: "sha256" } },
